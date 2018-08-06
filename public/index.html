@@ -1,5 +1,6 @@
 <html>
     <head>
+        <link rel="stylesheet" href="styles.css">
         <script src="/socket.io/socket.io.js"></script>
         <script>
             // (origin at 0 point of the horizontal scale graphic)
@@ -13,7 +14,10 @@
             var MAP_WIDTH = 599;
             var MAP_HEIGHT = 586;
         
-            var socket = io();         // open a WebSocket to the origin server
+            // Open a WebSocket to the origin server.
+            var socket = io();         
+            
+            // Handle "move" message received through the socket.
             socket.on("move", function(posStr) {
                 console.log(posStr);
                 var pos = JSON.parse(posStr);
@@ -23,129 +27,120 @@
                 updateRect();
             });
            
-			function writeToHistory(x, y, yaw) {
+            function writeToHistory(x, y, yaw) {
                 var historyConsole = document.getElementById("historyConsole");
                 var timestamp = new Date().toLocaleTimeString(); 
                 historyConsole.innerHTML = "<div>" + timestamp + ": x=" + x + ", y=" + y + ", yaw=" + yaw + "</div>" + historyConsole.innerHTML;
-			}
-			
+            }
+            
             function clearCanvas() {
-              var cnvs = document.getElementById("dotCanvas");
-              
-              var ctx = cnvs.getContext("2d");
-              ctx.clearRect(0, 0, cnvs.width, cnvs.height);
+                var cnvs = document.getElementById("mapCanvas");
+                var ctx = cnvs.getContext("2d");
+                ctx.clearRect(0, 0, cnvs.width, cnvs.height);
             }
             
             function drawRect(cnvsX, cnvsY, width, height, color, theta) {
-              var cnvs = document.getElementById("dotCanvas");
-
-              var ctx = cnvs.getContext("2d");
-              ctx.beginPath();
-              if (!theta) {
-                  ctx.rect(cnvsX - (width / 2), cnvsY - (height / 2), width, height);
-              } else {
-                  var x = cnvsX - ORIGIN_X;
-                  var y = cnvsY - ORIGIN_Y;
-                  var halfWidth = width / 2;
-                  var halfHeight = height / 2;
-                  var cosA = Math.cos(theta * (Math.PI / 180));
-                  var sinA = Math.sin(theta * (Math.PI / 180));
-                  // Start from upper left.
-                  ctx.moveTo((x + halfWidth * cosA - halfHeight * sinA) + ORIGIN_X,  
-                             (y + halfHeight * cosA + halfWidth * sinA) + ORIGIN_Y);
-                  // Draw line to upper right.
-                  ctx.lineTo((x - halfWidth * cosA - halfHeight * sinA) + ORIGIN_X, 
-                             (y + halfHeight * cosA - halfWidth * sinA) + ORIGIN_Y);
-                  // Draw line to bottom right.
-                  ctx.lineTo((x - halfWidth * cosA + halfHeight * sinA) + ORIGIN_X, 
-                             (y - halfHeight * cosA  - halfWidth * sinA) + ORIGIN_Y);
-                  // Draw line to bottom left.
-                  ctx.lineTo((x + halfWidth * cosA + halfHeight * sinA) + ORIGIN_X, 
-                             (y - halfHeight * cosA  + halfWidth * sinA) + ORIGIN_Y);
-              }
-
- 
-              ctx.fillStyle = color || "red";
-              ctx.fill();
+                var cnvs = document.getElementById("mapCanvas");
+                var ctx = cnvs.getContext("2d");
+                ctx.beginPath();
+                if (!theta) {
+                    ctx.rect(cnvsX - (width / 2), cnvsY - (height / 2), width, height);
+                } else {
+                    var x = cnvsX - ORIGIN_X;
+                    var y = cnvsY - ORIGIN_Y;
+                    var halfWidth = width / 2;
+                    var halfHeight = height / 2;
+                    var cosA = Math.cos(theta * (Math.PI / 180));
+                    var sinA = Math.sin(theta * (Math.PI / 180));
+                    // Start from upper left.
+                    ctx.moveTo((x + halfWidth * cosA - halfHeight * sinA) + ORIGIN_X,  
+                               (y + halfHeight * cosA + halfWidth * sinA) + ORIGIN_Y);
+                    // Draw line to upper right.
+                    ctx.lineTo((x - halfWidth * cosA - halfHeight * sinA) + ORIGIN_X, 
+                               (y + halfHeight * cosA - halfWidth * sinA) + ORIGIN_Y);
+                    // Draw line to bottom right.
+                    ctx.lineTo((x - halfWidth * cosA + halfHeight * sinA) + ORIGIN_X, 
+                               (y - halfHeight * cosA  - halfWidth * sinA) + ORIGIN_Y);
+                    // Draw line to bottom left.
+                    ctx.lineTo((x + halfWidth * cosA + halfHeight * sinA) + ORIGIN_X, 
+                               (y - halfHeight * cosA  + halfWidth * sinA) + ORIGIN_Y);
+                }
+                ctx.fillStyle = color || "red";
+                ctx.fill();
             }
 
             function updateRect() {
-				var rawX = document.getElementById("posX").value;
-				var rawY = document.getElementById("posY").value;
-				var yaw = document.getElementById("posYaw").value;
-				writeToHistory(rawX, rawY, yaw);
+                var rawX = document.getElementById("posX").value;
+                var rawY = document.getElementById("posY").value;
+                var yaw = document.getElementById("posYaw").value;
+                writeToHistory(rawX, rawY, yaw);
 
-				var x = (rawX * METERS_TO_CANVAS_X) + ORIGIN_X;
-				var y = (rawY * METERS_TO_CANVAS_Y) + ORIGIN_Y;
-				if (isNaN(x) || isNaN(y) || isNaN(yaw)) {
-					return;
-				}
-				clearCanvas();
-				drawRect(x, y, 4, 8, "red", yaw);
+                var x = (rawX * METERS_TO_CANVAS_X) + ORIGIN_X;
+                var y = (rawY * METERS_TO_CANVAS_Y) + ORIGIN_Y;
+                if (isNaN(x) || isNaN(y) || isNaN(yaw)) {
+                    return;
+                }
+                clearCanvas();
+                drawRect(x, y, 4, 8, "red", yaw);
             }
             
             function incPos(elementId, inc) {
-              var curValue = document.getElementById(elementId).value;
-              curValue = parseInt(curValue) + (inc || 1);
-              document.getElementById(elementId).value = curValue;
-              updateRect();
+                var curValue = document.getElementById(elementId).value;
+                curValue = parseInt(curValue) + (inc || 1);
+                document.getElementById(elementId).value = curValue;
+                updateRect();
             }
             
             function decPos(elementId, dec) {
-              var curValue = document.getElementById(elementId).value;
-              curValue -= (dec || 1);
-              document.getElementById(elementId).value = curValue;
-              updateRect();
+                var curValue = document.getElementById(elementId).value;
+                curValue -= (dec || 1);
+                document.getElementById(elementId).value = curValue;
+                updateRect();
             }
             
             function setStyleDims(id, width, height) {
-              var elem = document.getElementById(id);
-              elem.style.width = width;
-              elem.style.height = height;
+                var elem = document.getElementById(id);
+                elem.style.width = width;
+                elem.style.height = height;
             }
 
             function onPageLoad() {
-              setStyleDims("containerDiv", MAP_WIDTH + 400, MAP_HEIGHT);
-              setStyleDims("mapDiv", MAP_WIDTH, MAP_HEIGHT);
-              setStyleDims("indoorMap", MAP_WIDTH, MAP_HEIGHT);
-              setStyleDims("dotCanvas", MAP_WIDTH, MAP_HEIGHT);
-              setStyleDims("historyConsole", 350, MAP_HEIGHT - 40);
-  
-              document.getElementById("posX").value = 0;
-              document.getElementById("posY").value = 0;
-              document.getElementById("posYaw").value = 0;
-              updateRect();
+                setStyleDims("containerDiv", MAP_WIDTH + 400, MAP_HEIGHT);
+                setStyleDims("mapDiv", MAP_WIDTH, MAP_HEIGHT);
+                setStyleDims("map", MAP_WIDTH, MAP_HEIGHT);
+                setStyleDims("mapCanvas", MAP_WIDTH, MAP_HEIGHT);
+                setStyleDims("historyConsole", 350, MAP_HEIGHT - 40);
+                
+                document.getElementById("posX").value = 0;
+                document.getElementById("posY").value = 0;
+                document.getElementById("posYaw").value = 0;
+                updateRect();
             }
         </script>
     </head>
-    <body style="margin:0" onload="javascript:onPageLoad()">
-		<div style="text-align: center">
-			Current position: 
-			<span style="padding-left:5px; padding-right:5px">X=<input type="text" id="posX" size="4" onchange="updateRect()"/> 
-			<input type="button" value="+1m" onclick="javascript:incPos('posX')"/> 
-			<input type="button" value="-1m" onclick="javascript:decPos('posX')"/></span>
-			<span style="padding-right:5px">Y=<input type="text" id="posY" size="4" onchange="updateRect()"/> 
-			<input type="button" value="+1m" onclick="javascript:incPos('posY')"/> 
-			<input type="button" value="-1m" onclick="javascript:decPos('posY')"/></span>
-			<span style="padding-right:5px">Yaw=<input type="text" id="posYaw" size="4" onchange="updateRect()"/>
-			<input type="button" value="+5deg" onclick="javascript:incPos('posYaw', 5)"/>
-			<input type="button" value="-5deg" onclick="javascript:decPos('posYaw', 5)"/></span>
-		</div>
-		<div id="containerDiv" style="position: absolute;
-					margin: 30 auto;
-					top: 0;
-					right: 0;
-					bottom: 0;
-					left: 0">
-			<div id="mapDiv">
-				<img id="indoorMap" src="map.png"/>
-				<canvas id="dotCanvas" style="position:absolute; top:0; left:0"></canvas>
-			</div>
-			<div id="historyDiv" style="position:absolute; top:0; right:0">
-				Position Log:
-				<div id="historyConsole" style="font-family:Courier; font-size:14; color: #CCCCCC;background: #000000; border: 3px double #CCCCCC; padding: 10px; overflow:hidden">
-				</div>
-			</div>
-		</div>
+    <body onload="javascript:onPageLoad()">
+        <div id="controlsDiv">
+            Current position: 
+            <span class="firstControl">X=<input type="text" id="posX" size="4" onchange="updateRect()"/> 
+            <input type="button" value="+1m" onclick="javascript:incPos('posX')"/> 
+            <input type="button" value="-1m" onclick="javascript:decPos('posX')"/></span>
+            <span class="control">Y=<input type="text" id="posY" size="4" onchange="updateRect()"/> 
+            <input type="button" value="+1m" onclick="javascript:incPos('posY')"/> 
+            <input type="button" value="-1m" onclick="javascript:decPos('posY')"/></span>
+            <span class="control">Yaw=<input type="text" id="posYaw" size="4" onchange="updateRect()"/>
+            <input type="button" value="+5deg" onclick="javascript:incPos('posYaw', 5)"/>
+            <input type="button" value="-5deg" onclick="javascript:decPos('posYaw', 5)"/></span>
+        </div>
+        <div id="containerDiv">
+            <div id="mapDiv">
+                <img id="map" src="map.png"/>
+                <canvas id="mapCanvas"></canvas>
+            </div>
+            <div id="historyDiv">
+                Position Log:
+                <div id="historyConsole">
+                </div>
+            </div>
+        </div>
     </body>
 </html>

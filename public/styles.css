@@ -1,0 +1,47 @@
+body {
+    margin: 0
+}
+
+#controlsDiv {
+    text-align: center
+}
+
+.firstControl {
+    padding-left:5px; 
+    padding-right:5px
+}
+
+control {
+    padding-right:5px
+}
+
+#containerDiv {
+    position: absolute;
+    margin: 30 auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0
+}
+
+#mapCanvas {
+    position:absolute; 
+    top:0; 
+    left:0
+}
+
+#historyDiv {
+    position:absolute; 
+    top:0; 
+    right:0
+}
+
+#historyConsole {
+    font-family:Courier; 
+    font-size:14; 
+    color: #CCCCCC;
+    background: #000000; 
+    border: 3px double #CCCCCC; 
+    padding: 10px; 
+    overflow:hidden
+}
